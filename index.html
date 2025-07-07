@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MNIST Digit Recognition</title>
+  </head>
+  <body>
+    <h1>MNIST Digit Recognition</h1>
+    <form id="upload-form">
+      <input type="file" id="image-input" accept="image/*" required />
+      <button onclick="uploadImage()" type="submit">Upload</button>
+    </form>
+    <p id="result">Nothing yet</p>
+    <script>
+      async function uploadImage() {
+        const input = document.getElementById("image-input")
+        if (!input.files[0]) {
+          alert("Please select an image")
+          return
+        }
+        const file = input.files[0]
+        const formData = new FormData()
+        formData.append("file", file)
+        try {
+          const response = await fetch("http://127.0.0.1:8000/predict-image", {
+            method: "POST",
+            body: formData,
+          })
+          const data = await response.json()
+          alert(data)
+          document.getElementById(
+            "result"
+          ).textContent = `Prediction: ${data.prediction}`
+        } catch (error) {
+          console.error("Error:", error)
+          document.getElementById("result").innerHTML =
+            "Error: " + error.message
+        }
+      }
+    </script>
+  </body>
+</html>
