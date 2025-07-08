@@ -4,40 +4,125 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>MNIST Digit Recognition</title>
+    <style>
+      body {
+        background: #f6f8fa;
+        font-family: "Segoe UI", "Roboto", Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+      }
+      h1 {
+        color: #22223b;
+        margin-bottom: 1.5rem;
+        font-size: 2.2rem;
+        letter-spacing: 1px;
+      }
+      #upload-form {
+        background: #fff;
+        padding: 2rem 2.5rem;
+        border-radius: 16px;
+        box-shadow: 0 4px 24px rgba(34, 34, 59, 0.08);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1.2rem;
+        margin-bottom: 2rem;
+      }
+      #image-input {
+        padding: 0.5rem;
+        border-radius: 8px;
+        border: 1px solid #c9c9c9;
+        font-size: 1rem;
+        background: #f6f8fa;
+        transition: border 0.2s;
+      }
+      #image-input:focus {
+        border: 1.5px solid #4f8cff;
+        outline: none;
+      }
+      button[type="submit"] {
+        background: linear-gradient(90deg, #4f8cff 0%, #38b6ff 100%);
+        color: #fff;
+        border: none;
+        border-radius: 8px;
+        padding: 0.7rem 2.2rem;
+        font-size: 1.1rem;
+        font-weight: 600;
+        cursor: pointer;
+        box-shadow: 0 2px 8px rgba(34, 34, 59, 0.07);
+        transition: background 0.2s, transform 0.1s;
+      }
+      button[type="submit"]:hover {
+        background: linear-gradient(90deg, #38b6ff 0%, #4f8cff 100%);
+        transform: translateY(-2px) scale(1.03);
+      }
+      #result {
+        font-size: 1.3rem;
+        color: #22223b;
+        background: #e0e7ff;
+        padding: 1rem 2rem;
+        border-radius: 12px;
+        min-width: 220px;
+        text-align: center;
+        box-shadow: 0 2px 8px rgba(34, 34, 59, 0.05);
+      }
+      @media (max-width: 600px) {
+        #upload-form {
+          padding: 1.2rem 0.7rem;
+        }
+        #result {
+          padding: 0.7rem 0.5rem;
+          font-size: 1.1rem;
+        }
+      }
+    </style>
   </head>
   <body>
     <h1>MNIST Digit Recognition</h1>
     <form id="upload-form">
       <input type="file" id="image-input" accept="image/*" required />
-      <button onclick="uploadImage()" type="submit">Upload</button>
+      <button type="submit">Upload</button>
     </form>
     <p id="result">Nothing yet</p>
     <script>
-      async function uploadImage() {
+      const form = document.getElementById("upload-form")
+      const result = document.getElementById("result")
+      form.addEventListener("submit", async function (e) {
+        e.preventDefault()
         const input = document.getElementById("image-input")
         if (!input.files[0]) {
-          alert("Please select an image")
+          result.textContent = "Please select an image."
+          result.style.background = "#ffe0e0"
+          result.style.color = "#b00020"
           return
         }
         const file = input.files[0]
         const formData = new FormData()
         formData.append("file", file)
+        result.textContent = "Predicting..."
+        result.style.background = "#fffbe0"
+        result.style.color = "#b59f00"
         try {
           const response = await fetch("http://127.0.0.1:8000/predict-image", {
             method: "POST",
             body: formData,
           })
           const data = await response.json()
-          alert(data)
-          document.getElementById(
-            "result"
-          ).textContent = `Prediction: ${data.prediction}`
+          result.textContent = `Prediction: ${data.prediction}`
+          result.style.background = "#e0ffe0"
+          result.style.color = "#1b5e20"
         } catch (error) {
           console.error("Error:", error)
-          document.getElementById("result").innerHTML =
-            "Error: " + error.message
+          result.textContent = "Error: " + error.message
+          result.style.background = "#ffe0e0"
+          result.style.color = "#b00020"
         }
-      }
+      })
     </script>
   </body>
 </html>
